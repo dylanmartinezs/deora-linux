@@ -91,6 +91,9 @@ modules:
         - google-noto-sans-fonts
         - google-noto-emoji-fonts
         - papirus-icon-theme
+        - protobuf-devel
+        - protobuf-compiler
+        - openssl-devel
 
   - type: script
     scripts:
