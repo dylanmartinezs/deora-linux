@@ -27,7 +27,6 @@ modules:
         - leloubil/wl-clip-persist
         - brycensranch/gpu-screen-recorder-git
         - deltacopy/darkly
-        - atim/starship
     install:
       skip-unavailable: false
       packages:
@@ -35,6 +34,7 @@ modules:
         - ninja-build
         - git
         - extra-cmake-modules
+        - sassc
         - qt6-qtbase-devel
         - qt6-qtdeclarative-devel
         - qt6-qtwayland-devel
@@ -58,7 +58,6 @@ modules:
         - aubio-devel
         - lm_sensors-devel
         - vulkan-headers
-        - sassc
         - quickshell-git
         - app2unit
         - libcava
@@ -78,14 +77,12 @@ modules:
         - libsecret
         - fuzzel
         - swappy
-        - ddcutil
         - ImageMagick
         - tesseract
         - spectacle
         - slurp
         - grim
         - brightnessctl
-        - power-profiles-daemon
         - xdg-utils
         - xdg-user-dirs
         - bat
