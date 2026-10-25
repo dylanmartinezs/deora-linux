@@ -27,6 +27,7 @@ modules:
         - leloubil/wl-clip-persist
         - brycensranch/gpu-screen-recorder-git
         - deltacopy/darkly
+        - purian23/material-symbols-fonts
     install:
       skip-unavailable: false
       packages:
@@ -96,11 +97,17 @@ modules:
         - protobuf-devel
         - protobuf-compiler
         - openssl-devel
+        - material-symbols-fonts 
 
   - type: script
     scripts:
       - caelestia.sh
       - espanso.sh
+
+  - type: systemd
+    user:
+      enabled:
+        - caelestia-shell.service
 
   - type: dnf
     remove:

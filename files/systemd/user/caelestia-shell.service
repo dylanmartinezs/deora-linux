@@ -1,0 +1,25 @@
+[Unit]
+Description=Caelestia Shell
+PartOf=graphical-session.target
+After=graphical-session.target
+Before=xdg-desktop-autostart.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/quickshell -n -p /etc/xdg/quickshell/caelestia/shell.qml
+Environment=QML2_IMPORT_PATH=/usr/lib/qt6/qml:/etc/xdg/quickshell/caelestia
+Environment=CAELESTIA_LIB_DIR=/usr/lib/caelestia
+Environment=CAELESTIA_BIN_DIR=/usr/bin
+Environment=CAELESTIA_SHELL_CONFIG=/etc/xdg/quickshell/caelestia/shell.qml
+Environment=QS_NO_RELOAD_POPUP=1
+Environment=QS_DROP_EXPENSIVE_FONTS=1
+Environment=QS_DISABLE_CRASH_HANDLER=1
+Environment=QSG_RENDER_LOOP=threaded
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=5s
+Slice=session.slice
+Nice=-5
+
+[Install]
+WantedBy=graphical-session.target
