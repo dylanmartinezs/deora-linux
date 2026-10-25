@@ -66,7 +66,8 @@ test -d /usr/share/sddm/themes/caelestia        # proves CAELESTIA_PACKAGE took 
 rm -rf /tmp/ckde
 
 install -d /etc/sddm.conf.d
-cat > /etc/sddm.conf.d/10-caelestia.conf <<'EOF'
+cat > /etc/sddm.conf.d/zzz-caelestia.conf <<'EOF'
 [Theme]
 Current=caelestia
+QtVersion=6
 EOF
