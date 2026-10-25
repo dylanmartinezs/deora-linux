@@ -10,6 +10,64 @@ cd "$BUNDLE_DIR/scripts" || exit 1
 FAILED=0
 run() { echo "--- $* ---"; "$@" || { echo "!!! FAILED: $*" >&2; FAILED=1; }; }
 
+## Ensure wallpaper is always in sync Caelestia <-> Plasma, being the first the source of truth
+pshell_eval() {
+  busctl --user --no-pager call org.kde.plasmashell /PlasmaShell \
+    org.kde.PlasmaShell evaluateScript s "$1" 2>/dev/null
+}
+
+sync_wallpaper() {
+  local state_dir wp cur pics
+
+  if [ ! -x /usr/bin/qdbus6 ]; then
+    echo "!!! qdbus6 missing - the shell cannot push wallpapers; sync will drift again" >&2
+  fi
+
+  state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/caelestia"
+  pics="${XDG_PICTURES_DIR:-$HOME/Pictures}"
+
+  # same precedence as 04-deploy-kde.sh, so we never disagree with it
+  wp="$(cat "$state_dir/wallpaper/path.txt" 2>/dev/null | tr -d '\n' || true)"
+  wp="${wp#file://}"
+  if [ -z "$wp" ] || [ ! -f "$wp" ]; then
+    wp="$pics/Wallpapers/dharmx-digital/a_couple_of_people_standing_on_a_mountain.png"
+    [ -f "$wp" ] || wp="$BUNDLE_DIR/shell/assets/wallpaper.webp"
+    [ -f "$wp" ] || wp=/etc/xdg/quickshell/caelestia/assets/wallpaper.webp
+  fi
+  if [ ! -f "$wp" ]; then
+    echo "!!! no wallpaper file found - skipping sync" >&2
+    return 1
+  fi
+
+  # plasmashell may still be coming up on the first login
+  for _ in $(seq 1 20); do
+    pshell_eval 'desktops().length' | grep -q '[1-9]' && break
+    sleep 1
+  done
+
+  cur="$(pshell_eval 'var d = desktops()[0];
+    d.currentConfigGroup = ["Wallpaper","org.kde.image","General"];
+    d.readConfig("Image");' | sed -e 's/^s "//' -e 's/"$//')"
+
+  if [ "$cur" = "file://$wp" ]; then
+    echo "wallpaper already in sync: $wp"
+  else
+    echo "seeding Plasma wallpaper <- $wp (was: ${cur:-unset})"
+    pshell_eval "var ds = desktops();
+      for (var i = 0; i < ds.length; i++) {
+        ds[i].wallpaperPlugin = 'org.kde.image';
+        ds[i].currentConfigGroup = Array('Wallpaper','org.kde.image','General');
+        ds[i].writeConfig('Image', 'file://$wp');
+      }" >/dev/null
+  fi
+
+  # the greeter does not follow the desktop; it needs its own keys
+  kwriteconfig6 --file kscreenlockerrc --group Greeter --key WallpaperPlugin "org.kde.image" 2>/dev/null || true
+  kwriteconfig6 --file kscreenlockerrc \
+    --group Greeter --group Wallpaper --group org.kde.image --group General \
+    --key Image "file://$wp" 2>/dev/null || true
+}
+
 for _ in $(seq 1 30); do
   systemctl --user is-active --quiet caelestia-shell.service && break; sleep 1
 done
