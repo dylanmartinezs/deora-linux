@@ -1,0 +1,13 @@
+[Unit]
+Description=Pin SDDM default session to Plasma (Caelestia)
+Before=display-manager.service sddm.service
+After=systemd-user-sessions.service local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/sh -c 'install -d -o sddm -m 0755 /var/lib/sddm; printf"[Last]\nSession=caelestia-plasma.desktop\n" > /var/lib/sddm/state.conf; chown sddm:sddm /var/lib/sddm/state.conf; chmod 0644 /var/lib/sddm/state.conf'
+ExecStartPost=/usr/sbin/restorecon -F /var/lib/sddm/state.conf
+
+[Install]
+WantedBy=multi-user.target

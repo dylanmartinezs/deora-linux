@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Plasma (Caelestia)
+Comment=KDE Plasma with the Caelestia shell
+Exec=/usr/bin/startplasma-wayland
+TryExec=/usr/bin/startplasma-wayland
+DesktopNames=KDE
+Type=Application
