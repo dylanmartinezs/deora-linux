@@ -63,6 +63,16 @@ test -x /usr/bin/caelestia
 ls /usr/lib64/qt6/plugins/kwin/effects/plugins/ | grep -q workspace_tracker
 test -d /usr/share/sddm/themes/caelestia        # proves CAELESTIA_PACKAGE took effect
 
+if [ ! -x /usr/bin/qdbus6 ]; then
+    if [ -x /usr/bin/qdbus-qt6 ]; then
+        ln -sf /usr/bin/qdbus-qt6 /usr/bin/qdbus6
+    else
+        echo "FATAL: qdbus-qt6 not found - add qt6-qttools to the recipe" >&2
+        exit 1
+    fi
+fi
+test -x /usr/bin/qdbus6
+
 rm -rf /tmp/ckde
 
 install -d /etc/sddm.conf.d
