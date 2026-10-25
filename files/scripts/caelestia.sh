@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-export CAELESTIA_INSTALL_KIND=package
-
 git clone --depth 1 --recurse-submodules \
   https://github.com/ladybug-me/caelestia-kde.git /tmp/ckde
-
-# The effect must be built BEFORE devel packages are stripped.
 cd /tmp/ckde
-cmake -G Ninja -B kwin-effects/workspace-tracker/build \
-  -S kwin-effects/workspace-tracker \
+
+# --- 1. KWin workspace-tracker effect ---
+# Lives in shell/kwin-effects/, installs to /usr/lib64/qt6/plugins/kwin/effects/plugins
+cmake -G Ninja -B shell/kwin-effects/workspace-tracker/build \
+  -S shell/kwin-effects/workspace-tracker \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr
-cmake --build kwin-effects/workspace-tracker/build -j"$(nproc)"
-cmake --install kwin-effects/workspace-tracker/build
+cmake --build shell/kwin-effects/workspace-tracker/build -j"$(nproc)"
+cmake --install shell/kwin-effects/workspace-tracker/build
 
-# Shell, in "package" layout. Mirrors the flags in scripts/08-build-shell.sh
-# with $HOME/.local replaced by /usr and Fedora's lib64 QML dir.
+# --- 2. Shell QML tree + C++ QML plugin ---
+# Same flags as scripts/08-build-shell.sh, with $HOME/.local -> /usr
 cd /tmp/ckde/shell
 cmake -G Ninja -B build \
   -DCMAKE_BUILD_TYPE=Release \
@@ -26,28 +25,34 @@ cmake -G Ninja -B build \
   -DINSTALL_DATADIR=lib/caelestia \
   -DINSTALL_QSCONFDIR=/etc/xdg/quickshell/caelestia \
   -DINSTALL_LIBDIR=lib/caelestia \
-  -DINSTALL_QMLDIR=lib64/qt6/qml
+  -DINSTALL_QMLDIR=lib/qt6/qml
 cmake --build build -j"$(nproc)"
 cmake --install build
 
-# Session environment — the packaged paths from install-kind.sh.
+# --- 3. Session environment ---
+# Matches install_qml_import_path()'s packaged branch: /usr/lib/qt6/qml + /etc/xdg/quickshell/caelestia
+install -d /etc/environment.d
 cat > /etc/environment.d/50-caelestia.conf <<'EOF'
-QML2_IMPORT_PATH=/usr/lib64/qt6/qml:/etc/xdg/quickshell/caelestia
-QML_IMPORT_PATH=/usr/lib64/qt6/qml:/etc/xdg/quickshell/caelestia
+QML2_IMPORT_PATH=/usr/lib/qt6/qml:/etc/xdg/quickshell/caelestia
+QML_IMPORT_PATH=/usr/lib/qt6/qml:/etc/xdg/quickshell/caelestia
 CAELESTIA_LIB_DIR=/usr/lib/caelestia
 CAELESTIA_BIN_DIR=/usr/bin
 CAELESTIA_SHELL_CONFIG=/etc/xdg/quickshell/caelestia/shell.qml
 EOF
 
-# Sanity gate: fail the build rather than ship a shell that can't load.
-test -f /usr/lib64/qt6/qml/Caelestia/qmldir
+# --- 4. Gates: fail the build instead of shipping a shell that can't load ---
+for m in Caelestia Caelestia/Components Caelestia/Config Caelestia/Settings \
+         Caelestia/Models Caelestia/Services Caelestia/Services/QuickShare \
+         Caelestia/Blobs Caelestia/Images Caelestia/Layouts M3Shapes; do
+  test -f "/usr/lib/qt6/qml/$m/qmldir"
+  compgen -G "/usr/lib/qt6/qml/$m/*.so" >/dev/null
+done
+
 test -f /etc/xdg/quickshell/caelestia/shell.qml
 ls /usr/lib64/qt6/plugins/kwin/effects/plugins/ | grep -q workspace_tracker
 
-# Keep the bundle: first-login scripts source lib/ from here, and because
-# that path is under /usr, install_is_packaged() returns "package" there too.
+# --- 5. Keep the bundle for first-login steps ---
 install -d /usr/share/caelestia-kde
-cp -a scripts installer assets /usr/share/caelestia-kde/ 2>/dev/null || \
-  cp -a scripts installer /usr/share/caelestia-kde/
+cp -a scripts installer src assets /usr/share/caelestia-kde/
 
 rm -rf /tmp/ckde
