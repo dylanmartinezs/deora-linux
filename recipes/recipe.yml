@@ -113,7 +113,7 @@ modules:
     scripts:
       - caelestia.sh
       - espanso.sh
-      - espanso.sh
+      - kwin-effects.sh
 
   - type: systemd
     system:
