@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Caelestia first-login setup
+Exec=/usr/bin/caelestia-firstlogin
+Terminal=false
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-after=panel

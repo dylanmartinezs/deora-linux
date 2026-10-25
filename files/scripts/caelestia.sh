@@ -24,22 +24,19 @@ cmake -G Ninja -B build \
 cmake --build build -j"$(nproc)"
 cmake --install build
 
-# --- fonts: /usr/share/fonts is scanned by fontconfig; /etc/xdg is not ---
+FONT_SHA=PASTE_PINNED_COMMIT_SHA_HERE
 install -d /usr/share/fonts/caelestia
 
-# Google Sans Flex — ships inside the bundle CMake installs
 install -m644 /etc/xdg/quickshell/caelestia/assets/google-sans-flex/*.ttf \
                /usr/share/fonts/caelestia/
 
-# Material Symbols Rounded — not in the repo, download as TTF (woff2 will NOT work)
-curl -fL -o /usr/share/fonts/caelestia/MaterialSymbolsRounded.ttf \
-  'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsRounded%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf'
+curl -fL --retry 3 --retry-delay 5 \
+  -o /usr/share/fonts/caelestia/MaterialSymbolsRounded.ttf \
+  "https://raw.githubusercontent.com/google/material-design-icons/${FONT_SHA}/variablefont/MaterialSymbolsRounded%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf"
 
 file /usr/share/fonts/caelestia/MaterialSymbolsRounded.ttf | grep -q 'TrueType'
-
 fc-cache -f /usr/share/fonts/caelestia
 
-# --- gates: a missing family here means big-text icons in the shipped image ---
 fc-match "Material Symbols Rounded" | grep -qi 'MaterialSymbolsRounded'
 fc-match "Google Sans Flex"         | grep -qi 'GoogleSansFlex'
 
@@ -62,3 +59,9 @@ ls /usr/lib64/qt6/plugins/kwin/effects/plugins/ | grep -q workspace_tracker
 test -d /usr/share/sddm/themes/caelestia        # proves CAELESTIA_PACKAGE took effect
 
 rm -rf /tmp/ckde
+
+install -d /etc/sddm.conf.d
+cat > /etc/sddm.conf.d/10-caelestia.conf <<'EOF'
+[Theme]
+Current=caelestia
+EOF

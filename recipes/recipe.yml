@@ -44,6 +44,7 @@ modules:
         - qt6-qtshadertools-devel
         - qt6-qtmultimedia-devel
         - qt6-qt5compat-devel
+        - qt6-qttools
         - qt6-qttools-devel
         - kf6-kglobalaccel-devel
         - kf6-kwindowsystem-devel
@@ -98,6 +99,8 @@ modules:
         - protobuf-compiler
         - openssl-devel
         - material-symbols-fonts 
+        - cascadia-code-fonts
+        - jetbrains-mono-fonts-all
 
   - type: script
     scripts:
