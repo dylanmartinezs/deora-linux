@@ -37,7 +37,7 @@ modules:
         - extra-cmake-modules
         - sassc
         - qt6-qtbase-devel
-        - qt6-qtbase-private-devel 
+        - qt6-qtbase-private-devel
         - qt6-qtdeclarative-devel
         - qt6-qtwayland-devel
         - qt6-qtsvg-devel
@@ -64,7 +64,7 @@ modules:
         - quickshell-git
         - app2unit
         - libcava
-        - libcava-devel 
+        - libcava-devel
         - wl-clip-persist
         - gpu-screen-recorder
         - darkly
@@ -103,6 +103,7 @@ modules:
         - sddm
         - sddm-kcm
         - sddm-wayland-plasma
+        - plasma-workspace-wayland
 
   - type: script
     scripts:
@@ -115,6 +116,7 @@ modules:
         - sddm.service
       masked:
         - plasmalogin.service
+        - bazzite-autologin.service
     user:
       enabled:
         - caelestia-shell.service
