@@ -24,17 +24,22 @@ cmake -G Ninja -B build \
 cmake --build build -j"$(nproc)"
 cmake --install build
 
-FONT_SHA=PASTE_PINNED_COMMIT_SHA_HERE
+# --- fonts: /usr/share/fonts is scanned by fontconfig; /etc/xdg is not ---
+FONT_SHA=10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7
 install -d /usr/share/fonts/caelestia
 
+# Google Sans Flex — committed in the bundle CMake installs
 install -m644 /etc/xdg/quickshell/caelestia/assets/google-sans-flex/*.ttf \
                /usr/share/fonts/caelestia/
 
+# Material Symbols Rounded — ligature icons; woff2 will NOT work here
 curl -fL --retry 3 --retry-delay 5 \
   -o /usr/share/fonts/caelestia/MaterialSymbolsRounded.ttf \
   "https://raw.githubusercontent.com/google/material-design-icons/${FONT_SHA}/variablefont/MaterialSymbolsRounded%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf"
 
+# 200-with-an-HTML-page guard: curl -f can't catch that
 file /usr/share/fonts/caelestia/MaterialSymbolsRounded.ttf | grep -q 'TrueType'
+
 fc-cache -f /usr/share/fonts/caelestia
 
 fc-match "Material Symbols Rounded" | grep -qi 'MaterialSymbolsRounded'

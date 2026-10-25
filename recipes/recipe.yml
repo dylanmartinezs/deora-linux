@@ -27,7 +27,7 @@ modules:
         - leloubil/wl-clip-persist
         - brycensranch/gpu-screen-recorder-git
         - deltacopy/darkly
-        - purian23/material-symbols-fonts
+
     install:
       skip-unavailable: false
       packages:
@@ -98,7 +98,6 @@ modules:
         - protobuf-devel
         - protobuf-compiler
         - openssl-devel
-        - material-symbols-fonts 
         - cascadia-code-fonts
         - jetbrains-mono-fonts-all
 
