@@ -100,6 +100,9 @@ modules:
         - openssl-devel
         - cascadia-code-fonts
         - jetbrains-mono-fonts-all
+        - sddm
+        - sddm-kcm
+        - sddm-wayland-plasma
 
   - type: script
     scripts:
@@ -107,6 +110,11 @@ modules:
       - espanso.sh
 
   - type: systemd
+    system:
+      enabled:
+        - sddm.service
+      masked:
+        - plasmalogin.service
     user:
       enabled:
         - caelestia-shell.service

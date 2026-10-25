@@ -20,6 +20,23 @@ run ./04-deploy-kde.sh
 export WINDOW_OPACITY=100
 run ./04a-window-rules.sh
 
+# --- Caelestia lock screen (per-user by design; kscreenlocker reads ~/.config) ---
+kwriteconfig6 --file plasmashellrc --group "Shell" --key "ShellPackage" "caelestia.desktop"
+
+# greeter runs outside caelestia-shell.service and inherits no env from it,
+# so it needs the system paths again (upstream #805: Caelestia.Services not found)
+ENVDIR="$HOME/.config/plasma-workspace/env"
+mkdir -p "$ENVDIR"
+cat > "$ENVDIR/caelestia-lockscreen.sh" <<'EOF'
+#!/bin/sh
+export QML2_IMPORT_PATH="/usr/lib/qt6/qml:/etc/xdg/quickshell/caelestia${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}"
+export CAELESTIA_LIB_DIR="/usr/lib/caelestia"
+export CAELESTIA_BIN_DIR="/usr/bin"
+export CAELESTIA_SHELL_CONFIG="/etc/xdg/quickshell/caelestia/shell.qml"
+EOF
+chmod +x "$ENVDIR/caelestia-lockscreen.sh"
+
+
 if systemctl --user is-active --quiet caelestia-shell.service; then
   run ./06-services.sh      # clears Super+1..5 — only safe with the shell live
   run ./10-autostart.sh
