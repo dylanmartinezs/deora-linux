@@ -1,13 +1,13 @@
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # image will be published to ghcr.io/<user>/<name>
-name: template
+name: deora
 # description will be included in the image's metadata
-description: This is my personal OS image.
+description: My Bazzite DX fork with Caelestia and nice improvements
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: latest # You can pin to a specific version of Fedora as well
+base-image: ghcr.io/ublue-os/bazzite-dx-nvidia
+image-version: stable # You can pin to a specific version of Fedora as well
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -19,18 +19,97 @@ modules:
 
   - type: dnf
     repos:
+      cleanup: false
       copr:
+        - errornointernet/quickshell
+        - celestelove/app2unit
+        - celestelove/libcava
+        - leloubil/wl-clip-persist
+        - brycensranch/gpu-screen-recorder-git
+        - deltacopy/darkly
         - atim/starship
     install:
+      skip-unavailable: false
       packages:
-        - micro
-        - starship
+        - cmake
+        - ninja-build
+        - git
+        - extra-cmake-modules
+        - qt6-qtbase-devel
+        - qt6-qtdeclarative-devel
+        - qt6-qtwayland-devel
+        - qt6-qtsvg-devel
+        - qt6-qtshadertools-devel
+        - qt6-qtmultimedia-devel
+        - qt6-qt5compat-devel
+        - qt6-qttools-devel
+        - kf6-kglobalaccel-devel
+        - kf6-kwindowsystem-devel
+        - kf6-kguiaddons-devel
+        - kf6-kcoreaddons-devel
+        - kf6-networkmanager-qt-devel
+        - kwin-devel
+        - kpipewire-devel
+        - libepoxy-devel
+        - libdrm-devel
+        - pipewire-devel
+        - pulseaudio-qt-qt6-devel
+        - libqalculate-devel
+        - aubio-devel
+        - lm_sensors-devel
+        - vulkan-headers
+        - sassc
+        - quickshell-git
+        - app2unit
+        - libcava
+        - wl-clip-persist
+        - gpu-screen-recorder
+        - darkly
+        - foot
+        - eza
+        - fastfetch
+        - btop
+        - wl-clipboard
+        - cliphist
+        - inotify-tools
+        - trash-cli
+        - jq
+        - libqalculate
+        - libsecret
+        - fuzzel
+        - swappy
+        - ddcutil
+        - ImageMagick
+        - tesseract
+        - spectacle
+        - slurp
+        - grim
+        - brightnessctl
+        - power-profiles-daemon
+        - xdg-utils
+        - xdg-user-dirs
+        - bat
+        - ripgrep
+        - google-rubik-fonts
+        - google-noto-sans-fonts
+        - google-noto-emoji-fonts
+        - papirus-icon-theme
+
+  - type: script
+    scripts:
+      - caelestia.sh
+      - espanso.sh
+
+  - type: dnf
     remove:
+      auto-remove: false
       packages:
-        # example: removing firefox (in favor of the flatpak)
-        # "firefox" is the main package, "firefox-langpacks" is a dependency
-        - firefox
-        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+        - kwin-devel
+        - qt6-qtbase-devel
+        - qt6-qtdeclarative-devel
+        - qt6-qt5compat-devel
+        - qt6-qtmultimedia-devel
+
 
   - type: default-flatpaks
     configurations:
