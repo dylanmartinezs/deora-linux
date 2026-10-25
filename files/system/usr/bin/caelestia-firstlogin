@@ -60,6 +60,8 @@ command -v espanso >/dev/null && { espanso service register 2>/dev/null || true;
 
 ENVDIR="$HOME/.config/plasma-workspace/env"
 mkdir -p "$ENVDIR"
-cat > "$ENVDIR/caelestia-ssh-askpass.sh" <<'EOF'
+cat > "$ENVDIR/caelestia-ssh.sh" <<'EOF'
+SSH_AGENT_SOCK="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ssh-agent.socket"
+[ -n "${SSH_AUTH_SOCK:-}" ] || { [ -S "$SSH_AGENT_SOCK" ] && export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"; }
 [ -x /usr/bin/ksshaskpass ] && export SSH_ASKPASS=/usr/bin/ksshaskpass SSH_ASKPASS_REQUIRE=prefer
 EOF

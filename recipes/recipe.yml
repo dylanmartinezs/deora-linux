@@ -27,7 +27,6 @@ modules:
         - leloubil/wl-clip-persist
         - brycensranch/gpu-screen-recorder-git
         - deltacopy/darkly
-        - infinality/kwin-effects-better-blur-dx
 
     install:
       skip-unavailable: false
@@ -109,11 +108,11 @@ modules:
         - sddm-kcm
         - sddm-wayland-plasma
         - plasma-workspace-wayland
-        - kwin-effects-better-blur-dx
 
   - type: script
     scripts:
       - caelestia.sh
+      - espanso.sh
       - espanso.sh
 
   - type: systemd
