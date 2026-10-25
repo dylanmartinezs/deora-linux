@@ -41,3 +41,21 @@ These images are signed with [Sigstore](https://www.sigstore.dev/)'s [cosign](ht
 ```bash
 cosign verify --key cosign.pub ghcr.io/blue-build/template
 ```
+
+## Signing into git for pushing
+
+Before trying to push anything to a private repo, you'll likely need to generate a SSH key, by running the following:
+
+```bash
+ssh-keygen -t ed25519 -C "dylan@dylan-legion" -f ~/.ssh/id_ed25519
+ssh-add ~/.ssh/id_ed25519           # passphrase saved to KWallet via ksshaskpass
+cat ~/.ssh/id_ed25519.pub           # paste into GitHub → Settings → SSH keys
+git remote set-url origin git@github.com:USER/REPO.git
+```
+
+Then verify it's catched
+
+```bash
+ssh-add -l
+ssh -T git@github.com
+```

@@ -57,3 +57,9 @@ fi
 command -v espanso >/dev/null && { espanso service register 2>/dev/null || true; espanso start 2>/dev/null || true; }
 
 [ "$FAILED" -eq 0 ] && touch "$STAMP" || echo "=== failures — stamp not written, retries next login ==="
+
+ENVDIR="$HOME/.config/plasma-workspace/env"
+mkdir -p "$ENVDIR"
+cat > "$ENVDIR/caelestia-ssh-askpass.sh" <<'EOF'
+[ -x /usr/bin/ksshaskpass ] && export SSH_ASKPASS=/usr/bin/ksshaskpass SSH_ASKPASS_REQUIRE=prefer
+EOF

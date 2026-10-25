@@ -34,6 +34,10 @@ modules:
         - cmake
         - ninja-build
         - git
+        - git-core
+        - git-lfs
+        - openssh-clients
+        - ksshaskpass 
         - extra-cmake-modules
         - sassc
         - qt6-qtbase-devel
@@ -114,6 +118,7 @@ modules:
     system:
       enabled:
         - sddm.service
+        - ssh-agent.socket
       masked:
         - plasmalogin.service
         - bazzite-autologin.service
