@@ -61,6 +61,7 @@ modules:
         - quickshell-git
         - app2unit
         - libcava
+        - libcava-devel 
         - wl-clip-persist
         - gpu-screen-recorder
         - darkly
