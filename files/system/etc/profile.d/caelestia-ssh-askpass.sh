@@ -1,5 +1,10 @@
-# KDE: route ssh/ssh-add passphrase prompts through ksshaskpass + KWallet
-if [ -n "${KDE_FULL_SESSION:-}${XDG_CURRENT_DESKTOP:-}" ] && command -v ksshaskpass >/dev/null 2>&1; then
+# ssh-agent.service (openssh-clients) listens on a fixed path; export it to the session
+SSH_AGENT_SOCK="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/ssh-agent.socket"
+if [ -z "${SSH_AUTH_SOCK:-}" ] && [ -S "$SSH_AGENT_SOCK" ]; then
+    export SSH_AUTH_SOCK="$SSH_AGENT_SOCK"
+fi
+
+if command -v ksshaskpass >/dev/null 2>&1; then
     export SSH_ASKPASS=/usr/bin/ksshaskpass
     export SSH_ASKPASS_REQUIRE=prefer
 fi
