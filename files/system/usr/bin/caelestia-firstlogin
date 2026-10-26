@@ -72,6 +72,19 @@ for _ in $(seq 1 30); do
   systemctl --user is-active --quiet caelestia-shell.service && break; sleep 1
 done
 
+# Overriding default hard shutoff for graceful one (doesn't shut off until all apps are closed or 2 minutes, default KDE stuff)
+CFG="$HOME/.config/caelestia/shell.json"
+mkdir -p "$(dirname "$CFG")"
+[ -f "$CFG" ] || echo '{}' > "$CFG"
+if command -v jq >/dev/null; then
+  jq '.session.commands = {
+        "logout":    ["qdbus6","org.kde.Shutdown","/Shutdown","org.kde.Shutdown.logout"],
+        "shutdown":  ["qdbus6","org.kde.Shutdown","/Shutdown","org.kde.Shutdown.logoutAndShutdown"],
+        "reboot":    ["qdbus6","org.kde.Shutdown","/Shutdown","org.kde.Shutdown.logoutAndReboot"],
+        "hibernate": ["systemctl","hibernate"]
+      }' "$CFG" > "$CFG.tmp" && mv "$CFG.tmp" "$CFG"
+fi
+
 run ./03-deploy-configs.sh
 run ./03a-wallpapers.sh
 run ./04-deploy-kde.sh
