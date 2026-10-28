@@ -129,6 +129,27 @@ command -v espanso >/dev/null && { espanso service register 2>/dev/null || true;
 # Make Plasma get right image behind blurs
 run sync_wallpaper
 
+# --- GodotHub via GearLever --------------------------------------------------
+# GearLever (Flatpak) can't read /usr, and needs a writable copy to manage, so
+# the staged AppImage is copied into its folder once and then integrated.
+BUNDLED_VER=$(cat /usr/share/godothub/version 2>/dev/null || true)
+STAMPED_VER=$(cat "$HOME/.local/state/godothub-integrated" 2>/dev/null || true)
+if [ -n "$BUNDLED_VER" ] && [ "$BUNDLED_VER" != "$STAMPED_VER" ] \
+   && [ -f /usr/share/godothub/GodotHub.AppImage ]; then
+    mkdir -p "$HOME/AppImages"
+    cp -f /usr/share/godothub/GodotHub.AppImage "$HOME/AppImages/GodotHub.AppImage"
+    chmod +x "$HOME/AppImages/GodotHub.AppImage"
+    if command -v flatpak >/dev/null 2>&1 \
+       && flatpak info it.mijorus.gearlever >/dev/null 2>&1; then
+        flatpak run it.mijorus.gearlever \
+            --integrate "$HOME/AppImages/GodotHub.AppImage" --replace --yes || true
+        mkdir -p "$HOME/.local/state"
+        echo "$BUNDLED_VER" > "$HOME/.local/state/godothub-integrated"
+    else
+        echo "!!! GearLever not installed yet - GodotHub staged, integrate manually"
+    fi
+fi
+
 [ "$FAILED" -eq 0 ] && touch "$STAMP" || echo "=== failures — stamp not written, retries next login ==="
 
 ENVDIR="$HOME/.config/plasma-workspace/env"
