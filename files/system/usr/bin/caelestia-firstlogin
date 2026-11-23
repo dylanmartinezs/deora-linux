@@ -133,21 +133,17 @@ run sync_wallpaper
 # GearLever (Flatpak) can't read /usr, and needs a writable copy to manage, so
 # the staged AppImage is copied into its folder once and then integrated.
 BUNDLED_VER=$(cat /usr/share/godothub/version 2>/dev/null || true)
-STAMPED_VER=$(cat "$HOME/.local/state/godothub-integrated" 2>/dev/null || true)
-if [ -n "$BUNDLED_VER" ] && [ "$BUNDLED_VER" != "$STAMPED_VER" ] \
-   && [ -f /usr/share/godothub/GodotHub.AppImage ]; then
-    mkdir -p "$HOME/AppImages"
-    cp -f /usr/share/godothub/GodotHub.AppImage "$HOME/AppImages/GodotHub.AppImage"
-    chmod +x "$HOME/AppImages/GodotHub.AppImage"
-    if command -v flatpak >/dev/null 2>&1 \
-       && flatpak info it.mijorus.gearlever >/dev/null 2>&1; then
-        flatpak run it.mijorus.gearlever \
-            --integrate "$HOME/AppImages/GodotHub.AppImage" --replace --yes || true
-        mkdir -p "$HOME/.local/state"
-        echo "$BUNDLED_VER" > "$HOME/.local/state/godothub-integrated"
-    else
-        echo "!!! GearLever not installed yet - GodotHub staged, integrate manually"
-    fi
+DEST="$HOME/AppImages/GodotHub.AppImage"
+
+# don't clobber a newer AppImage the user updated in-app
+copy_needed=false
+if [ ! -f "$DEST" ]; then
+    copy_needed=true
+elif [ -n "$BUNDLED_VER" ]; then
+    # compare numerically; sort -V handles 1.5.10 > 1.5.9
+    newer=$(printf '%s\n%s\n' "$BUNDLED_VER" "$(cat "$HOME/.local/state/godothub-integrated" 2>/dev/null || echo 0)" \
+        | sort -V | tail -1)
+    [ "$newer" = "$BUNDLED_VER" ] && [ "$BUNDLED_VER" != "$(...)" ] && copy_needed=true
 fi
 
 [ "$FAILED" -eq 0 ] && touch "$STAMP" || echo "=== failures — stamp not written, retries next login ==="

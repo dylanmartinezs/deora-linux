@@ -6,11 +6,20 @@ for p in espanso-wayland sunshine; do
     rpm -q "$p" >/dev/null 2>&1 || missing+=("$p")
 done
 
-if [ ${#missing[@]} -gt 0 ]; then
-    printf 'FATAL: packages failed to install: %s\n' "${missing[*]}" >&2
-    for p in "${missing[@]}"; do
-        dnf5 repoquery --available "$p" 2>&1 | head -3 >&2
-    done
-    exit 1
+if [ ${#missing[@]} -eq 0 ]; then
+    echo "verify-packages: OK (espanso-wayland, sunshine)"
+    exit 0
 fi
-echo "verify-packages: all expected packages present"
+
+{
+    echo "FATAL: packages failed to install: ${missing[*]}"
+    echo "--- enabled repos ---"
+    dnf5 repolist --enabled 2>/dev/null | awk 'NR>1 {print $1}' | tr '\n' ' '
+    echo
+    for p in "${missing[@]}"; do
+        echo "--- $p ---"
+        dnf5 -q repoquery --available "$p" 2>/dev/null | head -3 || echo "(not in any enabled repo)"
+    done
+} >&2
+
+exit 1
