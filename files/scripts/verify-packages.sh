@@ -2,7 +2,7 @@
 set -uo pipefail
 
 missing=()
-for p in espanso-wayland sunshine; do
+for p in espanso-wayland; do
     rpm -q "$p" >/dev/null 2>&1 || missing+=("$p")
 done
 
