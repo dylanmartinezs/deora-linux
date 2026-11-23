@@ -1,16 +1,26 @@
 #!/usr/bin/env bash
-# files/scripts/espanso.sh
-set -euxo pipefail
+set -euo pipefail
 
-if [ -f /etc/yum.repos.d/terra.repo ]; then
-    sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/terra.repo
+# Bazzite disables terra and all third-party repos by default (ublue-os/bazzite#2580).
+# The repo FILE still exists, so a `-f /etc/yum.repos.d/terra.repo` test passes
+# while the repo is off - and dnf5 then reports only "No match for argument".
+# Persist the enable so the shipped image matches a working build.
+if ! dnf5 repolist --enabled --quiet 2>/dev/null | awk '{print $1}' | grep -qx terra; then
+    echo "espanso: terra is disabled in the base - enabling it persistently" >&2
+    dnf5 config-manager setopt terra.enabled=1
 fi
 
-dnf5 install -y espanso-wayland
+# terra-source pulls 285 KiB of SRPM metadata per build for nothing
+dnf5 config-manager setopt terra-source.enabled=0 || true
 
-# Record what the RPM actually granted, so first login verifies instead of guesses.
-mkdir -p /usr/share/caelestia-build
-if command -v espanso >/dev/null; then
-    getcap "$(command -v espanso)" || echo "no file capabilities set by RPM" \
-      | tee /usr/share/caelestia-build/espanso-cap.txt
-fi
+# skip_if_unavailable=False: an unreachable or GPG-failing repo must abort and
+# name itself, instead of being silently dropped and surfacing as "No match"
+dnf5 install -y --refresh \
+    --enablerepo=terra \
+    --setopt='*.skip_if_unavailable=False' \
+    espanso-wayland
+
+rpm -q espanso-wayland
+b="$(readlink -f "$(command -v espanso)")"
+setcap 'cap_dac_override+p' "$b"
+getcap "$b"
