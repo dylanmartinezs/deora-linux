@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-git clone --depth 1 --recurse-submodules \
-  https://github.com/ladybug-me/caelestia-kde.git /tmp/ckde
+git clone --depth 1 --branch dev --recurse-submodules \
+  https://github.com/caelestia-kde/caelestia.git /tmp/ckde
 cd /tmp/ckde
 
 # --- 1. KWin workspace-tracker effect (already proven to work) ---
